@@ -484,25 +484,46 @@ static int expression_if_any(int *out_type) {
 }
 
 /* ---------- I/O: Load Tokens, Dump Symbol Table ---------- */
-
 static int load_tokens(const char *fname) {
     FILE *f = fopen(fname, "r");
     if (!f) {
         fprintf(stderr, "Cannot open %s\n", fname);
         return 0;
     }
+
     ntok = 0;
-    while (!feof(f) && ntok < MAXTOK) {
-        Tok t;
-        if (fscanf(f, "%31s %255s %d", t.token, t.lexeme, &t.line) == 3) {
-            toks[ntok++] = t;
-        } else {
+
+    char t1[64], t2[256];
+    int line;
+
+    while (!feof(f)) {
+
+        int count = fscanf(f, "%63s %255s %d", t1, t2, &line);
+
+        if (count == EOF || count == 0)
             break;
+
+        /* If the third value wasn't an integer → SKIP THAT LINE (header or garbage) */
+        if (count != 3) {
+            /* discard the rest of the line */
+            int c;
+            while ((c = fgetc(f)) != '\n' && c != EOF);
+            continue;
         }
+
+        /* VALID TOKEN — store it */
+        strcpy(toks[ntok].token,  t1);
+        strcpy(toks[ntok].lexeme, t2);
+        toks[ntok].line = line;
+
+        ntok++;
+        if (ntok >= MAXTOK) break;
     }
+
     fclose(f);
     return 1;
 }
+
 
 static void print_symbol_table(void) {
     FILE *out = fopen("symbol_table_semantic.txt", "w");

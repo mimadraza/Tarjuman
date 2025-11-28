@@ -1,0 +1,11 @@
+Lexeme	Type	Scope	Array size
+A	Int	Global	0
+B	Int	Global	0
+E	Int	Global	10
+G	Int	Global	0
+X	Char	Global	0
+Y	Char	Global	0
+a	Int	Main	0
+b	Int	Main	0
+c	Char	Main	0
+d	Char	Main	0
